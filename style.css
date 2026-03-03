@@ -1,0 +1,339 @@
+/* style.css – プレミアム・ポモドーロタイマー・デザイン */
+
+/* デザインシステムの基本変数 */
+:root {
+  --bg-color: #1e1e2f;
+  /* 背景色（ダークスレート） */
+  --primary-color: hsl(210, 70%, 55%);
+  /* メインカラー（穏やかなブルー） */
+  --accent-color: hsl(340, 80%, 60%);
+  /* アクセントカラー（鮮やかなピンク） */
+  --text-color: #e0e0ff;
+  /* テキスト色（ソフトオフホワイト） */
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  /* グラスモーフィズム背景 */
+  --glass-border: rgba(255, 255, 255, 0.12);
+  /* グラスモーフィズム境界線 */
+  --radius: 12px;
+  /* 角丸の半径 */
+  --transition: 0.3s ease;
+  /* アニメーションの基本設定 */
+}
+
+/* 休憩中モードのグローバル設定 */
+body.rest-mode {
+  --accent-color: hsl(150, 70%, 60%);
+  /* 休憩中はリラックスできる緑 */
+}
+
+/* テーマ設定（bodyクラスによって変数を上書き） */
+body.theme-sunset {
+  --bg-color: #2f1e1e;
+  /* 深みのある赤茶色 */
+  --primary-color: hsl(30, 80%, 60%);
+  --accent-color: hsl(0, 80%, 60%);
+}
+
+body.theme-forest {
+  --bg-color: #1e2f1e;
+  /* 深いフォレストグリーン */
+  --primary-color: hsl(150, 70%, 45%);
+  --accent-color: hsl(80, 70%, 50%);
+}
+
+body.theme-ocean {
+  --bg-color: #1e252f;
+  /* 深いネイビーブルー */
+  --primary-color: hsl(200, 80%, 50%);
+  --accent-color: hsl(180, 70%, 45%);
+}
+
+/* 全体リセットとタイポグラフィ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  transition: background 0.5s ease;
+}
+
+/* グラスモーフィズム効果を適用したコンテナ */
+.container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 2rem 3rem;
+  text-align: center;
+  width: 320px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 10;
+}
+
+h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+  transition: color var(--transition);
+}
+
+/* タイマー表示 - 大きく、中央寄せ、影で光る効果 */
+.timer-display {
+  font-size: 3rem;
+  font-weight: 600;
+  margin: 1.5rem 0;
+  color: var(--accent-color);
+  text-shadow: 0 0 8px rgba(255, 105, 180, 0.3);
+  transition: color var(--transition);
+}
+
+/* ボタンのスタイリング - 洗練されたアニメーション付きグラスエフェクト */
+.btn {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-color);
+  padding: 0.6rem 1.2rem;
+  margin: 0.3rem;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+  backdrop-filter: blur(6px);
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 120, 255, 0.3);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ハンバーガーメニューボタン */
+.menu-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-color);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  backdrop-filter: blur(8px);
+  transition: var(--transition);
+}
+
+.menu-toggle:hover {
+  background: var(--primary-color);
+  transform: rotate(90deg);
+}
+
+/* サイドメニュー */
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: -320px;
+  width: 300px;
+  height: 100%;
+  background: rgba(30, 30, 47, 0.95);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--glass-border);
+  z-index: 999;
+  padding: 80px 20px 20px;
+  transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.side-menu.open {
+  left: 0;
+}
+
+.menu-section h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 0.5rem;
+}
+
+/* ToDoリストのスタイリング */
+.todo-input-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.todo-input-group input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 0.5rem;
+  color: white;
+  outline: none;
+}
+
+.todo-list {
+  list-style: none;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  animation: fadeIn 0.3s ease;
+}
+
+.todo-item span {
+  flex: 1;
+  cursor: pointer;
+}
+
+.todo-item.completed span {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #ff4d4d;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.delete-btn:hover {
+  background: rgba(255, 77, 77, 0.1);
+}
+
+/* テーマ切り替えボタンのスタイリング */
+.theme-options {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.theme-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.theme-btn:hover {
+  transform: scale(1.2);
+}
+
+.theme-btn.active {
+  border-color: white;
+}
+
+/* アニメーション定義 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* スライダー（時間調整）のスタイリング */
+.slider-container {
+  margin-top: 2rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius);
+  border: 1px solid var(--glass-border);
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+  opacity: 0.7;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  background: var(--glass-bg);
+  border-radius: 3px;
+  border: 1px solid var(--glass-border);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 18px;
+  width: 18px;
+  background: var(--accent-color);
+  border-radius: 50%;
+  margin-top: -7px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 380px) {
+  .container {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  .timer-display {
+    font-size: 2.5rem;
+  }
+
+  .side-menu {
+    width: 260px;
+  }
+}
