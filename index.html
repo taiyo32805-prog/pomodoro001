@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ポモドーロタイマー</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <button id="menuToggle" class="menu-toggle">☰</button>
+
+    <div id="sideMenu" class="side-menu">
+        <div class="menu-section">
+            <h2>Todo List</h2>
+            <div class="todo-input-group">
+                <input type="text" id="todoInput" placeholder="新しいタスク...">
+                <button id="addTodoBtn" class="btn">追加</button>
+            </div>
+            <ul id="todoList" class="todo-list"></ul>
+        </div>
+
+        <div class="menu-section">
+            <h2>Theme</h2>
+            <div class="theme-options">
+                <button class="theme-btn active" data-theme="default" style="background: hsl(210, 70%, 55%);"></button>
+                <button class="theme-btn" data-theme="sunset" style="background: hsl(30, 80%, 60%);"></button>
+                <button class="theme-btn" data-theme="forest" style="background: hsl(150, 70%, 45%);"></button>
+                <button class="theme-btn" data-theme="ocean" style="background: hsl(200, 80%, 50%);"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 id="statusTitle">ポモドーロタイマー</h1>
+        <div id="timer" class="timer-display">25:00</div>
+        <div class="controls">
+            <button id="startBtn" class="btn">開始</button>
+            <button id="pauseBtn" class="btn" disabled>一時停止</button>
+            <button id="resumeBtn" class="btn" disabled>再開</button>
+            <button id="resetBtn" class="btn" disabled>リセット</button>
+        </div>
+        <div class="slider-container">
+            <input type="range" id="timeSlider" min="0" max="1500" value="1500">
+            <div class="slider-labels">
+                <span>0:00</span>
+                <span id="sliderMaxLabel">25:00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- タイマーのロジック ---
+        const statusTitle = document.getElementById('statusTitle');
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const timeSlider = document.getElementById('timeSlider');
+        const sliderMaxLabel = document.getElementById('sliderMaxLabel');
+
+        const WORK_TIME = 25 * 60;
+        const REST_TIME = 5 * 60;
+
+        let intervalId = null;
+        let remainingSeconds = WORK_TIME;
+        let isWorkTime = true;
+
+        function updateDisplay(seconds) {
+            const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+            const secs = String(seconds % 60).padStart(2, '0');
+            timerDisplay.textContent = `${mins}:${secs}`;
+            timeSlider.value = seconds;
+        }
+
+        function startTimer() {
+            if (intervalId) return;
+
+            statusTitle.textContent = isWorkTime ? '作業中' : '休憩中';
+            if (!isWorkTime) {
+                document.body.classList.add('rest-mode');
+            } else {
+                document.body.classList.remove('rest-mode');
+            }
+
+            intervalId = setInterval(() => {
+                if (remainingSeconds <= 0) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+
+                    // モード切替
+                    isWorkTime = !isWorkTime;
+                    remainingSeconds = isWorkTime ? WORK_TIME : REST_TIME;
+
+                    // スライダー設定更新
+                    timeSlider.max = remainingSeconds;
+                    sliderMaxLabel.textContent = isWorkTime ? '25:00' : '5:00';
+
+
+                    updateDisplay(remainingSeconds);
+                    startTimer(); // 自動で次を開始
+                    return;
+                }
+                remainingSeconds--;
+                updateDisplay(remainingSeconds);
+            }, 1000);
+
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            resetBtn.disabled = false;
+        }
+
+        function pauseTimer() {
+            if (!intervalId) return;
+            clearInterval(intervalId);
+            intervalId = null;
+            statusTitle.textContent = '一時停止中';
+            pauseBtn.disabled = true;
+            resumeBtn.disabled = false;
+        }
+
+        function resumeTimer() {
+            if (intervalId) return;
+            statusTitle.textContent = isWorkTime ? '作業中' : '休憩中';
+            startTimer(); // タイマー開始。残り時間はリセットしない。
+            pauseBtn.disabled = false;
+            resumeBtn.disabled = true;
+        }
+
+        function resetTimer() {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            isWorkTime = true;
+            document.body.classList.remove('rest-mode');
+            statusTitle.textContent = 'ポモドーロタイマー';
+            remainingSeconds = WORK_TIME;
+
+            // スライダーリセット
+            timeSlider.max = WORK_TIME;
+            sliderMaxLabel.textContent = '25:00';
+
+            updateDisplay(remainingSeconds);
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            resumeBtn.disabled = true;
+            resetBtn.disabled = true;
+        }
+
+        timeSlider.addEventListener('input', (e) => {
+            remainingSeconds = parseInt(e.target.value);
+            updateDisplay(remainingSeconds);
+        });
+
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resumeBtn.addEventListener('click', resumeTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        // --- サイドメニューと各種機能 ---
+        const menuToggle = document.getElementById('menuToggle');
+        const sideMenu = document.getElementById('sideMenu');
+        const todoInput = document.getElementById('todoInput');
+        const addTodoBtn = document.getElementById('addTodoBtn');
+        const todoList = document.getElementById('todoList');
+        const themeBtns = document.querySelectorAll('.theme-btn');
+
+        // メニューの開閉切り替え
+        menuToggle.addEventListener('click', () => {
+            sideMenu.classList.toggle('open');
+        });
+
+        // メニューの外側をクリックしたときに閉じる
+        document.addEventListener('click', (e) => {
+            if (!sideMenu.contains(e.target) && !menuToggle.contains(e.target) && sideMenu.classList.contains('open')) {
+                sideMenu.classList.remove('open');
+            }
+        });
+
+        // ToDoリストのロジック
+        let todos = JSON.parse(localStorage.getItem('pomodoro-todos')) || [];
+
+        function renderTodos() {
+            todoList.innerHTML = '';
+            todos.forEach((todo, index) => {
+                const li = document.createElement('li');
+                li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <span onclick="toggleTodo(${index})">${todo.text}</span>
+                    <button class="delete-btn" onclick="deleteTodo(${index})">✕</button>
+                `;
+                todoList.appendChild(li);
+            });
+            localStorage.setItem('pomodoro-todos', JSON.stringify(todos));
+        }
+
+        window.addTodo = () => {
+            const text = todoInput.value.trim();
+            if (text) {
+                todos.push({ text, completed: false });
+                todoInput.value = '';
+                renderTodos();
+            }
+        };
+
+        window.toggleTodo = (index) => {
+            todos[index].completed = !todos[index].completed;
+            renderTodos();
+        };
+
+        window.deleteTodo = (index) => {
+            todos.splice(index, 1);
+            renderTodos();
+        };
+
+        addTodoBtn.addEventListener('click', window.addTodo);
+        todoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') window.addTodo();
+        });
+
+        // テーマ切り替えのロジック land
+        themeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.dataset.theme;
+                setTheme(theme);
+            });
+        });
+
+        function setTheme(theme) {
+            document.body.className = theme === 'default' ? '' : `theme-${theme}`;
+            themeBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.theme === theme);
+            });
+            localStorage.setItem('pomodoro-theme', theme);
+        }
+
+        // 初期化処理 land
+        renderTodos();
+        const savedTheme = localStorage.getItem('pomodoro-theme') || 'default';
+        setTheme(savedTheme);
+    </script>
+</body>
+
+</html>
